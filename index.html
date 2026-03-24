@@ -1,527 +1,610 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-  <title>DailyMood — A Word for How You Feel</title>
-
-  <!-- PWA Meta -->
-  <meta name="description" content="Choose your mood and receive a Bible verse with a personal explanation — every day, every feeling." />
-  <meta name="theme-color" content="#0D0C0A" />
-  <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-  <meta name="apple-mobile-web-app-title" content="DailyMood" />
-  <meta name="mobile-web-app-capable" content="yes" />
-
-  <!-- Open Graph -->
-  <meta property="og:title" content="DailyMood — A Word for How You Feel" />
-  <meta property="og:description" content="Choose your mood. Receive a Bible verse. Find peace." />
-  <meta property="og:type" content="website" />
-
-  <link rel="manifest" href="#" id="manifest-placeholder" />
-
-  <!-- Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
+  <title>DailyMood</title>
+  <meta name="description" content="Mood verses, Bible challenges, and focused prayer — all in one place."/>
+  <meta name="theme-color" content="#0D0C0A"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="DailyMood"/>
+  <meta name="mobile-web-app-capable" content="yes"/>
+  <link rel="manifest" href="#" id="manifest-link"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <style>
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    :root{
+      --bg:#0D0C0A;--surface:rgba(255,255,255,0.03);--surface2:rgba(255,255,255,0.06);
+      --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+      --text:#EDE8DF;--text2:#9A9080;--text3:#524E47;
+      --gold:#C5A55A;--gold2:rgba(197,165,90,0.15);
+      --serif:'Cormorant Garamond',Georgia,serif;
+      --sans:'Outfit',system-ui,sans-serif;
+      --safe-top:env(safe-area-inset-top,0px);
+      --safe-bottom:env(safe-area-inset-bottom,0px);
+    }
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:var(--serif);min-height:100dvh;overflow-x:hidden;padding-top:var(--safe-top)}
 
-    :root {
-      --bg: #0D0C0A;
-      --surface: rgba(255,255,255,0.03);
-      --border: rgba(255,255,255,0.07);
-      --text-primary: #EDE8DF;
-      --text-secondary: #9A9080;
-      --text-muted: #524E47;
-      --accent: #C5A55A;
-      --serif: 'Cormorant Garamond', Georgia, serif;
-      --sans: 'Outfit', system-ui, sans-serif;
-      --safe-top: env(safe-area-inset-top, 0px);
-      --safe-bottom: env(safe-area-inset-bottom, 0px);
-    }
+    /* ── AURA ── */
+    #aura{position:fixed;inset:0;pointer-events:none;z-index:0;transition:background 1.2s ease}
 
-    html { scroll-behavior: smooth; }
+    /* ── SPLASH ── */
+    #splash{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px;text-align:center;transition:opacity .6s ease,transform .6s ease}
+    #splash.hide{opacity:0;transform:scale(1.04);pointer-events:none}
+    .s-cross{width:44px;height:44px;margin-bottom:28px;position:relative;opacity:0;animation:fiu .8s .2s ease forwards}
+    .s-cross::before,.s-cross::after{content:'';position:absolute;background:var(--gold);border-radius:2px}
+    .s-cross::before{width:4px;height:100%;left:50%;transform:translateX(-50%)}
+    .s-cross::after{height:4px;width:68%;top:30%;left:16%}
+    .s-title{font-family:var(--serif);font-size:clamp(42px,10vw,68px);font-weight:300;font-style:italic;letter-spacing:-1px;line-height:1;margin-bottom:6px;opacity:0;animation:fiu .8s .4s ease forwards}
+    .s-title span{color:var(--gold)}
+    .s-sub{font-family:var(--sans);font-size:13px;font-weight:300;color:var(--text2);letter-spacing:1px;margin-bottom:40px;opacity:0;animation:fiu .8s .6s ease forwards}
+    .s-quote{font-family:var(--serif);font-style:italic;font-size:clamp(15px,3vw,19px);color:var(--text2);max-width:300px;line-height:1.6;margin-bottom:48px;opacity:0;animation:fiu .8s .8s ease forwards}
+    .s-btn{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;color:var(--bg);background:var(--gold);border:none;border-radius:40px;padding:15px 38px;cursor:pointer;transition:transform .2s,box-shadow .2s;opacity:0;animation:fiu .8s 1s ease forwards}
+    .s-btn:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(197,165,90,.3)}
+    .s-ref{position:absolute;bottom:calc(28px + var(--safe-bottom));font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text3);opacity:0;animation:fiu .8s 1.2s ease forwards}
 
-    body {
-      background: var(--bg);
-      color: var(--text-primary);
-      font-family: var(--serif);
-      min-height: 100vh;
-      min-height: 100dvh;
-      overflow-x: hidden;
-      padding-top: var(--safe-top);
-      padding-bottom: var(--safe-bottom);
-    }
+    /* ── SHELL ── */
+    #shell{display:none;flex-direction:column;min-height:100dvh;position:relative;z-index:1}
+    #shell.on{display:flex}
 
-    .aura {
-      position: fixed; inset: 0; pointer-events: none; z-index: 0;
-      transition: background 1.2s ease;
-    }
+    /* ── TOP BAR ── */
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px 0;flex-shrink:0}
+    .logo{font-family:var(--serif);font-style:italic;font-size:20px;color:var(--gold);letter-spacing:-.5px}
+    .logo span{color:var(--text)}
+    .logo-tag{font-family:var(--sans);font-size:9px;letter-spacing:3px;text-transform:uppercase;color:var(--text3)}
 
-    /* ─── SPLASH ─── */
-    #splash {
-      position: fixed; inset: 0; z-index: 100;
-      background: var(--bg);
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 32px; text-align: center;
-      transition: opacity 0.6s ease, transform 0.6s ease;
-    }
-    #splash.hide { opacity: 0; transform: scale(1.04); pointer-events: none; }
+    /* ── TAB BAR ── */
+    .tabbar{display:flex;padding:12px 16px 0;gap:4px;flex-shrink:0}
+    .tab{flex:1;font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;background:none;border:1px solid var(--border);border-radius:10px;padding:10px 4px;cursor:pointer;color:var(--text3);transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .tab.active{background:var(--gold2);border-color:var(--gold);color:var(--gold)}
+    .tab-icon{display:block;font-size:16px;margin-bottom:4px}
 
-    .splash-cross {
-      width: 48px; height: 48px; margin-bottom: 32px;
-      position: relative; opacity: 0;
-      animation: fadeInUp 0.8s 0.2s ease forwards;
-    }
-    .splash-cross::before, .splash-cross::after {
-      content: ''; position: absolute;
-      background: var(--accent); border-radius: 2px;
-    }
-    .splash-cross::before { width: 4px; height: 100%; left: 50%; transform: translateX(-50%); }
-    .splash-cross::after { height: 4px; width: 70%; top: 30%; left: 15%; }
+    /* ── PAGES ── */
+    .page{display:none;flex:1;overflow-y:auto;padding:20px 20px calc(20px + var(--safe-bottom))}
+    .page.on{display:block}
 
-    .splash-title {
-      font-family: var(--serif); font-size: clamp(44px, 10vw, 72px);
-      font-weight: 300; font-style: italic;
-      letter-spacing: -1px; line-height: 1; margin-bottom: 8px;
-      opacity: 0; animation: fadeInUp 0.8s 0.4s ease forwards;
-    }
-    .splash-title span { color: var(--accent); }
+    /* ── SHARED ── */
+    .label{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text3);margin-bottom:16px;display:block}
+    .card{background:var(--surface);border:1px solid var(--border);border-radius:18px;overflow:hidden}
+    .card-accent{height:2px}
+    .card-body{padding:28px 24px 20px}
+    .card-footer{border-top:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between}
+    .btn-ghost{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;background:none;border:none;cursor:pointer;opacity:.5;transition:opacity .2s;-webkit-tap-highlight-color:transparent}
+    .btn-ghost:hover{opacity:1}
+    .divider{height:1px;margin:20px 0}
 
-    .splash-sub {
-      font-family: var(--sans); font-size: 14px; font-weight: 300;
-      color: var(--text-secondary); letter-spacing: 1px; margin-bottom: 48px;
-      opacity: 0; animation: fadeInUp 0.8s 0.6s ease forwards;
-    }
+    /* ── MOOD GRID ── */
+    .mood-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:24px}
+    @media(max-width:380px){.mood-grid{grid-template-columns:repeat(2,1fr)}}
+    .mc{border-radius:14px;padding:14px 6px 12px;text-align:center;cursor:pointer;background:var(--surface);border:1px solid var(--border);transition:all .25s cubic-bezier(.34,1.56,.64,1);-webkit-tap-highlight-color:transparent;user-select:none}
+    .mc:hover{transform:translateY(-3px) scale(1.03)}
+    .mc:active{transform:scale(.96)}
+    .mc-emoji{font-size:22px;margin-bottom:6px;display:block}
+    .mc-name{font-family:var(--sans);font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase;display:block;margin-bottom:3px}
+    .mc-desc{font-family:var(--sans);font-size:8px;color:var(--text3);line-height:1.3;display:block}
 
-    .splash-tagline {
-      font-family: var(--serif); font-style: italic;
-      font-size: clamp(16px, 3vw, 20px); color: var(--text-secondary);
-      max-width: 320px; line-height: 1.6; margin-bottom: 52px;
-      opacity: 0; animation: fadeInUp 0.8s 0.8s ease forwards;
-    }
+    /* ── VERSE CARD ── */
+    .v-ref{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;margin-bottom:16px;display:block;animation:glow 3s ease-in-out infinite}
+    .v-text{font-family:var(--serif);font-style:italic;font-size:clamp(17px,3.2vw,22px);line-height:1.65;color:var(--text);border-left:2px solid;padding-left:18px;margin-bottom:22px}
+    .v-explain{font-family:var(--sans);font-size:13px;font-weight:300;line-height:1.8;color:var(--text2);margin-bottom:18px}
+    .v-prayer{border-radius:10px;padding:14px 16px;display:flex;align-items:flex-start;gap:10px}
+    .v-prayer-icon{font-size:14px;flex-shrink:0;margin-top:2px}
+    .v-prayer-text{font-family:var(--serif);font-style:italic;font-size:13px;color:var(--text2);line-height:1.6}
 
-    .btn-enter {
-      font-family: var(--sans); font-size: 13px; font-weight: 500;
-      letter-spacing: 3px; text-transform: uppercase;
-      color: var(--bg); background: var(--accent);
-      border: none; border-radius: 40px;
-      padding: 16px 40px; cursor: pointer;
-      transition: transform 0.2s, box-shadow 0.2s;
-      opacity: 0; animation: fadeInUp 0.8s 1s ease forwards;
-    }
-    .btn-enter:hover { transform: translateY(-2px); box-shadow: 0 12px 32px rgba(197,165,90,0.3); }
-    .btn-enter:active { transform: scale(0.97); }
+    /* ── LOADING ── */
+    .loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:56px 0;gap:16px;animation:fis .4s ease}
+    .spinner{width:32px;height:32px;border:2px solid rgba(197,165,90,.15);border-top-color:var(--gold);border-radius:50%;animation:spin 1s linear infinite}
+    .loading-text{font-family:var(--serif);font-style:italic;font-size:14px;color:var(--text2)}
 
-    .splash-verse {
-      position: absolute; bottom: calc(32px + var(--safe-bottom));
-      font-family: var(--serif); font-style: italic;
-      font-size: 12px; color: var(--text-muted);
-      opacity: 0; animation: fadeInUp 0.8s 1.2s ease forwards;
-    }
+    /* ── CHALLENGE TAB ── */
+    .challenge-header{text-align:center;padding:12px 0 24px}
+    .ch-title{font-family:var(--serif);font-size:28px;font-weight:300;font-style:italic;margin-bottom:6px}
+    .ch-streak{font-family:var(--sans);font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--gold)}
+    .ch-score{display:flex;gap:16px;justify-content:center;margin-top:12px}
+    .ch-score-item{text-align:center}
+    .ch-score-num{font-family:var(--serif);font-size:28px;color:var(--gold)}
+    .ch-score-label{font-family:var(--sans);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3)}
+    .ch-verse-partial{font-family:var(--serif);font-style:italic;font-size:clamp(18px,3.5vw,24px);line-height:1.65;color:var(--text);text-align:center;padding:24px 4px;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin:20px 0}
+    .ch-blank{display:inline-block;min-width:120px;border-bottom:2px solid var(--gold);color:var(--gold);font-style:normal}
+    .ch-ref{font-family:var(--sans);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);text-align:center;margin-bottom:20px}
+    .ch-options{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+    .ch-opt{font-family:var(--serif);font-size:15px;font-style:italic;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 12px;cursor:pointer;text-align:center;color:var(--text);transition:all .2s;-webkit-tap-highlight-color:transparent;line-height:1.3}
+    .ch-opt:hover{background:var(--surface2);border-color:var(--border2)}
+    .ch-opt.correct{background:rgba(91,168,122,.15);border-color:#5BA87A;color:#5BA87A}
+    .ch-opt.wrong{background:rgba(168,91,91,.15);border-color:#A85B5B;color:#A85B5B}
+    .ch-opt:disabled{cursor:default}
+    .ch-feedback{font-family:var(--sans);font-size:13px;font-weight:300;line-height:1.7;color:var(--text2);text-align:center;padding:16px;background:var(--surface);border-radius:12px;margin-bottom:16px;animation:fiu .4s ease}
+    .btn-next{width:100%;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;background:var(--gold);color:var(--bg);border:none;border-radius:12px;padding:16px;cursor:pointer;transition:transform .2s,box-shadow .2s}
+    .btn-next:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(197,165,90,.25)}
 
-    /* ─── MAIN APP ─── */
-    #app {
-      display: none; position: relative; z-index: 1;
-      max-width: 620px; margin: 0 auto;
-      padding: 0 20px 100px;
-      min-height: 100dvh;
-    }
-    #app.visible { display: block; }
+    /* ── PRAYER TAB ── */
+    .prayer-intro{text-align:center;padding:8px 0 28px}
+    .pi-icon{font-size:48px;margin-bottom:16px;display:block}
+    .pi-title{font-family:var(--serif);font-size:30px;font-weight:300;font-style:italic;margin-bottom:8px}
+    .pi-sub{font-family:var(--sans);font-size:13px;font-weight:300;color:var(--text2);line-height:1.6;max-width:280px;margin:0 auto 28px}
+    .prayer-duration{display:flex;gap:10px;justify-content:center;margin-bottom:28px}
+    .pd-btn{font-family:var(--sans);font-size:11px;font-weight:500;letter-spacing:1px;background:var(--surface);border:1px solid var(--border);border-radius:24px;padding:10px 18px;cursor:pointer;color:var(--text2);transition:all .2s;-webkit-tap-highlight-color:transparent}
+    .pd-btn.active{background:var(--gold2);border-color:var(--gold);color:var(--gold)}
+    .btn-pray{width:100%;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:3px;text-transform:uppercase;background:var(--gold);color:var(--bg);border:none;border-radius:14px;padding:18px;cursor:pointer;transition:transform .2s,box-shadow .2s;margin-bottom:16px}
+    .btn-pray:hover{transform:translateY(-1px);box-shadow:0 8px 24px rgba(197,165,90,.25)}
+    .remind-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-top:4px}
+    .remind-label{font-family:var(--sans);font-size:11px;color:var(--text3);letter-spacing:1px}
+    .remind-time{font-family:var(--sans);font-size:11px;background:var(--surface);border:1px solid var(--border);border-radius:8px;color:var(--text);padding:6px 10px;cursor:pointer}
+    .btn-remind{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:1px;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text2);padding:6px 12px;cursor:pointer;transition:all .2s}
+    .btn-remind:hover{border-color:var(--gold);color:var(--gold)}
 
-    .app-header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 20px 0 32px;
-      opacity: 0; animation: fadeInUp 0.6s 0.1s ease forwards;
-    }
-    .app-logo {
-      font-family: var(--serif); font-style: italic; font-size: 22px;
-      color: var(--accent); letter-spacing: -0.5px;
-    }
-    .app-logo span { color: var(--text-primary); }
-    .header-tag {
-      font-family: var(--sans); font-size: 10px; letter-spacing: 3px;
-      text-transform: uppercase; color: var(--text-muted);
-    }
+    /* ── PRAYER FULLSCREEN ── */
+    #prayer-fs{display:none;position:fixed;inset:0;z-index:300;background:#070706;flex-direction:column;align-items:center;justify-content:center;padding:40px 32px;text-align:center}
+    #prayer-fs.on{display:flex}
+    .pf-phase{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--text3);margin-bottom:32px}
+    .pf-timer{font-family:var(--serif);font-size:72px;font-weight:300;color:var(--gold);margin-bottom:8px;letter-spacing:-2px;font-style:italic}
+    .pf-timer-label{font-family:var(--sans);font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text3);margin-bottom:40px}
+    .pf-prompt{font-family:var(--serif);font-style:italic;font-size:clamp(18px,4vw,26px);line-height:1.6;color:var(--text);max-width:340px;margin-bottom:40px}
+    .pf-progress{width:100%;max-width:300px;height:2px;background:rgba(255,255,255,.08);border-radius:2px;margin-bottom:40px}
+    .pf-progress-bar{height:100%;background:var(--gold);border-radius:2px;transition:width .5s linear}
+    /* reflection questions */
+    .pf-question{font-family:var(--serif);font-style:italic;font-size:clamp(17px,3.5vw,22px);line-height:1.6;color:var(--text);margin-bottom:24px;max-width:340px}
+    .pf-textarea{width:100%;max-width:360px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:12px;padding:14px 16px;font-family:var(--serif);font-style:italic;font-size:15px;color:var(--text);resize:none;min-height:100px;outline:none;line-height:1.6}
+    .pf-textarea:focus{border-color:var(--gold);background:rgba(197,165,90,.05)}
+    .btn-pf{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:2px;text-transform:uppercase;background:var(--gold);color:var(--bg);border:none;border-radius:12px;padding:14px 32px;cursor:pointer;margin-top:16px;transition:transform .2s}
+    .btn-pf:hover{transform:translateY(-1px)}
+    .pf-exit-hint{position:absolute;top:calc(16px + var(--safe-top));right:20px;font-family:var(--sans);font-size:9px;letter-spacing:2px;text-transform:uppercase;color:var(--text3);cursor:pointer;opacity:.4;transition:opacity .2s;padding:8px}
+    .pf-exit-hint:hover{opacity:1}
+    /* final verse in prayer */
+    .pf-verse-ref{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:16px;display:block}
+    .pf-verse-text{font-family:var(--serif);font-style:italic;font-size:clamp(18px,3.5vw,24px);line-height:1.65;color:var(--text);border-left:2px solid var(--gold);padding-left:18px;margin-bottom:20px;text-align:left}
+    .pf-verse-explain{font-family:var(--sans);font-size:13px;font-weight:300;line-height:1.8;color:var(--text2);text-align:left}
 
-    .section-label {
-      font-family: var(--sans); font-size: 10px; letter-spacing: 4px;
-      text-transform: uppercase; color: var(--text-muted); margin-bottom: 20px;
-      opacity: 0; animation: fadeInUp 0.6s 0.2s ease forwards;
-    }
+    /* ── TOAST ── */
+    #toast{position:fixed;bottom:calc(90px + var(--safe-bottom));left:50%;transform:translateX(-50%) translateY(20px);opacity:0;transition:all .3s;font-family:var(--sans);font-size:12px;letter-spacing:1px;background:#1A1815;border:1px solid rgba(197,165,90,.3);border-radius:24px;padding:10px 20px;color:var(--text2);white-space:nowrap;pointer-events:none;z-index:400}
+    #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
-    .mood-grid {
-      display: grid; grid-template-columns: repeat(4, 1fr);
-      gap: 10px; margin-bottom: 40px;
-      opacity: 0; animation: fadeInUp 0.6s 0.3s ease forwards;
-    }
-    @media (max-width: 400px) { .mood-grid { grid-template-columns: repeat(2, 1fr); } }
+    /* ── FOOTER ── */
+    .app-footer{text-align:center;padding:36px 0 12px;font-family:var(--serif);font-style:italic;font-size:11px;color:var(--text3)}
 
-    .mood-card {
-      border-radius: 16px; padding: 16px 8px 14px;
-      text-align: center; cursor: pointer;
-      background: var(--surface); border: 1px solid var(--border);
-      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
-      -webkit-tap-highlight-color: transparent; user-select: none;
-    }
-    .mood-card:hover { transform: translateY(-3px) scale(1.03); }
-    .mood-card:active { transform: scale(0.96); }
-
-    .mood-emoji { font-size: 26px; margin-bottom: 8px; display: block; }
-    .mood-name {
-      font-family: var(--sans); font-size: 11px; font-weight: 500;
-      letter-spacing: 0.5px; text-transform: uppercase;
-      display: block; margin-bottom: 4px;
-    }
-    .mood-desc {
-      font-family: var(--sans); font-size: 9px; color: var(--text-muted);
-      line-height: 1.4; display: block;
-    }
-
-    .verse-area { min-height: 200px; }
-
-    .loading-state {
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: center;
-      padding: 64px 0; gap: 20px;
-      animation: fadeInScale 0.4s ease;
-    }
-    .spinner {
-      width: 36px; height: 36px;
-      border: 2px solid rgba(197,165,90,0.15);
-      border-top-color: var(--accent);
-      border-radius: 50%; animation: spin 1s linear infinite;
-    }
-    .loading-text {
-      font-family: var(--serif); font-style: italic;
-      font-size: 15px; color: var(--text-secondary);
-    }
-
-    .verse-card {
-      border-radius: 20px; overflow: hidden;
-      background: var(--surface); border: 1px solid var(--border);
-      animation: fadeInUp 0.6s ease;
-    }
-    .verse-card-accent { height: 2px; }
-    .verse-card-body { padding: 32px 28px 24px; }
-    @media (max-width: 400px) { .verse-card-body { padding: 24px 20px 18px; } }
-
-    .verse-reference {
-      font-family: var(--sans); font-size: 10px; letter-spacing: 4px;
-      text-transform: uppercase; margin-bottom: 20px; display: block;
-      animation: pulse 3s ease-in-out infinite;
-    }
-    .verse-text {
-      font-family: var(--serif); font-style: italic;
-      font-size: clamp(19px, 3.5vw, 25px);
-      line-height: 1.65; color: var(--text-primary);
-      border-left: 2px solid; padding-left: 20px; margin-bottom: 28px;
-    }
-    .verse-divider { height: 1px; margin-bottom: 24px; }
-    .verse-explanation {
-      font-family: var(--sans); font-size: 14px; font-weight: 300;
-      line-height: 1.8; color: var(--text-secondary); margin-bottom: 20px;
-    }
-    .verse-prayer {
-      border-radius: 12px; padding: 16px 18px;
-      display: flex; align-items: flex-start; gap: 12px;
-    }
-    .prayer-icon { font-size: 15px; flex-shrink: 0; margin-top: 2px; }
-    .prayer-text {
-      font-family: var(--serif); font-style: italic;
-      font-size: 14px; color: var(--text-secondary); line-height: 1.6;
-    }
-
-    .verse-card-footer {
-      border-top: 1px solid var(--border);
-      padding: 14px 28px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .btn-refresh {
-      font-family: var(--sans); font-size: 11px; font-weight: 500;
-      letter-spacing: 2px; text-transform: uppercase;
-      background: none; border: none; cursor: pointer;
-      opacity: 0.5; transition: opacity 0.2s;
-      display: flex; align-items: center; gap: 8px;
-      -webkit-tap-highlight-color: transparent;
-    }
-    .btn-refresh:hover { opacity: 1; }
-    .btn-refresh:active { transform: scale(0.96); }
-    .verse-count { font-family: var(--sans); font-size: 10px; color: var(--text-muted); letter-spacing: 1px; }
-
-    /* Install Banner */
-    #install-banner {
-      position: fixed; bottom: calc(20px + var(--safe-bottom));
-      left: 50%; transform: translateX(-50%) translateY(120px);
-      z-index: 200; width: calc(100% - 40px); max-width: 420px;
-      background: #1A1815; border: 1px solid rgba(197,165,90,0.3);
-      border-radius: 16px; padding: 16px 20px;
-      display: flex; align-items: center; gap: 14px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.6);
-      transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-    #install-banner.show { transform: translateX(-50%) translateY(0); }
-    .install-icon {
-      width: 40px; height: 40px; flex-shrink: 0;
-      background: var(--accent); border-radius: 10px;
-      display: flex; align-items: center; justify-content: center; font-size: 20px;
-    }
-    .install-text { flex: 1; }
-    .install-title { font-family: var(--sans); font-size: 13px; font-weight: 500; color: var(--text-primary); margin-bottom: 2px; }
-    .install-sub { font-family: var(--sans); font-size: 11px; color: var(--text-muted); }
-    .install-btns { display: flex; gap: 8px; flex-shrink: 0; }
-    .btn-install {
-      font-family: var(--sans); font-size: 11px; font-weight: 600;
-      background: var(--accent); color: var(--bg);
-      border: none; border-radius: 8px; padding: 8px 14px; cursor: pointer;
-    }
-    .btn-dismiss {
-      font-family: var(--sans); font-size: 18px; font-weight: 300;
-      background: none; border: none; color: var(--text-muted); cursor: pointer; padding: 4px 8px;
-    }
-
-    .app-footer {
-      text-align: center; padding: 48px 0 20px;
-      font-family: var(--serif); font-style: italic;
-      font-size: 12px; color: var(--text-muted);
-    }
-
-    @keyframes fadeInUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes fadeOut { to { opacity: 0; transform: translateY(-16px); } }
-    @keyframes fadeInScale { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
-    @keyframes spin { to { transform: rotate(360deg); } }
-    @keyframes pulse { 0%,100%{opacity:0.5} 50%{opacity:1} }
+    /* ── ANIMATIONS ── */
+    @keyframes fiu{from{opacity:0;transform:translateY(22px)}to{opacity:1;transform:translateY(0)}}
+    @keyframes fis{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    @keyframes fadeout{to{opacity:0;transform:translateY(-14px)}}
+    @keyframes glow{0%,100%{opacity:.5}50%{opacity:1}}
+    @keyframes breathe{0%,100%{transform:scale(1);opacity:.6}50%{transform:scale(1.08);opacity:1}}
   </style>
 </head>
 <body>
+<div id="aura"></div>
 
-<div class="aura" id="aura"></div>
-
-<!-- SPLASH -->
+<!-- ══ SPLASH ══ -->
 <div id="splash">
-  <div class="splash-cross"></div>
-  <h1 class="splash-title">Daily<span>Mood</span></h1>
-  <p class="splash-sub">A word for how you feel</p>
-  <p class="splash-tagline">"Your word is a lamp to my feet and a light to my path."</p>
-  <button class="btn-enter" onclick="enterApp()">Begin ✦</button>
-  <p class="splash-verse">Psalm 119:105</p>
+  <div class="s-cross"></div>
+  <h1 class="s-title">Daily<span>Mood</span></h1>
+  <p class="s-sub">A word for how you feel</p>
+  <p class="s-quote">"Your word is a lamp to my feet<br>and a light to my path."</p>
+  <button class="s-btn" onclick="enterApp()">Begin ✦</button>
+  <p class="s-ref">Psalm 119:105</p>
 </div>
 
-<!-- APP -->
-<div id="app">
-  <div class="app-header">
-    <div class="app-logo">Daily<span>Mood</span></div>
-    <div class="header-tag">✦ Verse of the Moment</div>
+<!-- ══ SHELL ══ -->
+<div id="shell">
+  <div class="topbar">
+    <div class="logo">Daily<span>Mood</span></div>
+    <div class="logo-tag">✦ Faith · Peace · Hope</div>
   </div>
-  <p class="section-label">How are you feeling right now?</p>
-  <div class="mood-grid" id="moodGrid"></div>
-  <div class="verse-area" id="verseArea"></div>
-  <div class="app-footer">✦ &nbsp; He knows every season of your heart &nbsp; ✦</div>
+  <div class="tabbar">
+    <button class="tab active" onclick="goTab('mood')" id="tab-mood"><span class="tab-icon">🕊️</span>Mood</button>
+    <button class="tab" onclick="goTab('challenge')" id="tab-challenge"><span class="tab-icon">📖</span>Challenge</button>
+    <button class="tab" onclick="goTab('prayer')" id="tab-prayer"><span class="tab-icon">🙏</span>Prayer</button>
+  </div>
+
+  <!-- ── MOOD PAGE ── -->
+  <div class="page on" id="page-mood">
+    <br>
+    <span class="label">How are you feeling right now?</span>
+    <div class="mood-grid" id="moodGrid"></div>
+    <div id="verseArea"></div>
+    <div class="app-footer">✦ &nbsp;He knows every season of your heart&nbsp; ✦</div>
+  </div>
+
+  <!-- ── CHALLENGE PAGE ── -->
+  <div class="page" id="page-challenge">
+    <div class="challenge-header">
+      <h2 class="ch-title">Verse Challenge</h2>
+      <div class="ch-streak" id="streakLabel">🔥 Streak: 0</div>
+      <div class="ch-score">
+        <div class="ch-score-item"><div class="ch-score-num" id="scoreNum">0</div><div class="ch-score-label">Score</div></div>
+        <div class="ch-score-item"><div class="ch-score-num" id="totalNum">0</div><div class="ch-score-label">Played</div></div>
+      </div>
+    </div>
+    <div id="challengeArea"></div>
+  </div>
+
+  <!-- ── PRAYER PAGE ── -->
+  <div class="page" id="page-prayer">
+    <div class="prayer-intro">
+      <span class="pi-icon">🕯️</span>
+      <h2 class="pi-title">Focused Prayer</h2>
+      <p class="pi-sub">Step away from the noise. Enter a quiet space with God. After your prayer time, reflect — and receive a verse.</p>
+    </div>
+    <span class="label">Choose your prayer duration</span>
+    <div class="prayer-duration">
+      <button class="pd-btn active" onclick="setDuration(3,this)">3 min</button>
+      <button class="pd-btn" onclick="setDuration(5,this)">5 min</button>
+      <button class="pd-btn" onclick="setDuration(10,this)">10 min</button>
+      <button class="pd-btn" onclick="setDuration(15,this)">15 min</button>
+    </div>
+    <button class="btn-pray" onclick="startPrayer()">Enter Prayer Mode ✦</button>
+    <div class="remind-row">
+      <span class="remind-label">Not now? Remind me at</span>
+      <input type="time" class="remind-time" id="reminderTime" value="21:00"/>
+      <button class="btn-remind" onclick="setReminder()">Set</button>
+    </div>
+    <div class="app-footer" style="margin-top:40px">✦ &nbsp;"Be still, and know that I am God." — Psalm 46:10&nbsp; ✦</div>
+  </div>
 </div>
 
-<!-- INSTALL BANNER -->
-<div id="install-banner">
-  <div class="install-icon">✦</div>
-  <div class="install-text">
-    <div class="install-title">Add DailyMood to your home screen</div>
-    <div class="install-sub">One tap away, every day</div>
-  </div>
-  <div class="install-btns">
-    <button class="btn-install" id="btnInstall">Add</button>
-    <button class="btn-dismiss" onclick="dismissInstall()">✕</button>
-  </div>
+<!-- ══ PRAYER FULLSCREEN ══ -->
+<div id="prayer-fs">
+  <span class="pf-exit-hint" onclick="exitPrayer()">exit ✕</span>
+  <div id="pf-content"></div>
 </div>
+
+<!-- ══ TOAST ══ -->
+<div id="toast"></div>
 
 <script>
-const MOODS = [
-  { id: "anxious",  label: "Anxious",   emoji: "😟", color: "#7B9FBF", desc: "Worried or overwhelmed" },
-  { id: "grateful", label: "Grateful",  emoji: "🙏", color: "#C5A55A", desc: "Thankful and blessed" },
-  { id: "lonely",   label: "Lonely",    emoji: "🕊️", color: "#9B8ABF", desc: "Feeling alone" },
-  { id: "joyful",   label: "Joyful",    emoji: "✨", color: "#5BA87A", desc: "Happy and at peace" },
-  { id: "doubt",    label: "Doubting",  emoji: "🌑", color: "#7A7A9A", desc: "Questioning or uncertain" },
-  { id: "tired",    label: "Weary",     emoji: "🌿", color: "#8B9E6B", desc: "Exhausted or burned out" },
-  { id: "hopeful",  label: "Hopeful",   emoji: "🌅", color: "#BF8A5A", desc: "Looking forward in faith" },
-  { id: "grieving", label: "Grieving",  emoji: "💧", color: "#6B8A9E", desc: "Mourning or in pain" },
+// ═══════════════════════════════════════════
+// DATA
+// ═══════════════════════════════════════════
+const MOODS=[
+  {id:"anxious", label:"Anxious",  emoji:"😟",color:"#7B9FBF",desc:"Worried or overwhelmed"},
+  {id:"grateful",label:"Grateful", emoji:"🙏",color:"#C5A55A",desc:"Thankful and blessed"},
+  {id:"lonely",  label:"Lonely",   emoji:"🕊️",color:"#9B8ABF",desc:"Feeling alone"},
+  {id:"joyful",  label:"Joyful",   emoji:"✨",color:"#5BA87A",desc:"Happy and at peace"},
+  {id:"doubt",   label:"Doubting", emoji:"🌑",color:"#7A7A9A",desc:"Questioning or uncertain"},
+  {id:"tired",   label:"Weary",    emoji:"🌿",color:"#8B9E6B",desc:"Exhausted or burned out"},
+  {id:"hopeful", label:"Hopeful",  emoji:"🌅",color:"#BF8A5A",desc:"Looking forward in faith"},
+  {id:"grieving",label:"Grieving", emoji:"💧",color:"#6B8A9E",desc:"Mourning or in pain"},
 ];
 
-let selectedMood = null;
-let isLoading = false;
-let verseCount = {};
-let deferredPrompt = null;
+const CHALLENGE_VERSES=[
+  {partial:"For God so loved the world that he gave his one and only ___",answer:"Son",options:["Son","Spirit","Word","Light"],ref:"John 3:16",full:"For God so loved the world that he gave his one and only Son, that whoever believes in him shall not perish but have eternal life."},
+  {partial:"I can do all this through ___ who gives me strength",answer:"him",options:["him","faith","prayer","love"],ref:"Philippians 4:13",full:"I can do all this through him who gives me strength."},
+  {partial:"The Lord is my shepherd, I lack ___",answer:"nothing",options:["nothing","fear","sorrow","doubt"],ref:"Psalm 23:1",full:"The Lord is my shepherd, I lack nothing."},
+  {partial:"For I know the plans I have for you, plans to ___ you and not to harm you",answer:"prosper",options:["prosper","test","refine","guide"],ref:"Jeremiah 29:11",full:"For I know the plans I have for you, declares the Lord, plans to prosper you and not to harm you, plans to give you hope and a future."},
+  {partial:"Trust in the Lord with all your heart and lean not on your own ___",answer:"understanding",options:["understanding","strength","wisdom","desires"],ref:"Proverbs 3:5",full:"Trust in the Lord with all your heart and lean not on your own understanding."},
+  {partial:"Be still, and know that I am ___",answer:"God",options:["God","near","faithful","good"],ref:"Psalm 46:10",full:"Be still, and know that I am God; I will be exalted among the nations, I will be exalted in the earth."},
+  {partial:"Your word is a lamp to my feet and a ___ to my path",answer:"light",options:["light","guide","strength","comfort"],ref:"Psalm 119:105",full:"Your word is a lamp to my feet and a light to my path."},
+  {partial:"Come to me, all you who are weary and ___, and I will give you rest",answer:"burdened",options:["burdened","broken","lost","afraid"],ref:"Matthew 11:28",full:"Come to me, all you who are weary and burdened, and I will give you rest."},
+  {partial:"Fear not, for I am with you; be not ___, for I am your God",answer:"dismayed",options:["dismayed","troubled","weary","alone"],ref:"Isaiah 41:10",full:"Fear not, for I am with you; be not dismayed, for I am your God; I will strengthen you, I will help you."},
+  {partial:"The joy of the Lord is your ___",answer:"strength",options:["strength","peace","refuge","anchor"],ref:"Nehemiah 8:10",full:"Do not grieve, for the joy of the Lord is your strength."},
+];
 
-// PWA Install
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-  setTimeout(() => document.getElementById('install-banner').classList.add('show'), 8000);
-});
-document.getElementById('btnInstall').addEventListener('click', async () => {
-  if (!deferredPrompt) return;
-  deferredPrompt.prompt();
-  await deferredPrompt.userChoice;
-  deferredPrompt = null;
-  dismissInstall();
-});
-function dismissInstall() {
-  document.getElementById('install-banner').classList.remove('show');
-}
+const PRAYER_PROMPTS=[
+  "Be still.\nLet your breathing slow.\nYou are in His presence.",
+  "Release what you're carrying.\nHe knows. He sees. He cares.",
+  "Whisper what's on your heart —\nor simply rest in the silence.",
+  "He is near to the brokenhearted.\nYou are not alone in this.",
+  "Let His peace, which surpasses all understanding,\nguard your heart.",
+];
 
-function enterApp() {
+const REFLECTION_QUESTIONS=[
+  "What is weighing on your heart right now?",
+  "What do you need from God in this moment?",
+  "What are you grateful for, even in this difficulty?",
+];
+
+// ═══════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════
+let selectedMood=null, moodLoading=false, verseCount={};
+let score=0, total=0, streak=0, currentChallenge=null, challengeAnswered=false;
+let prayerDuration=3, prayerInterval=null, prayerPhase='timer';
+let reflectionAnswers=[], currentQuestion=0;
+
+// ═══════════════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════════════
+function enterApp(){
   document.getElementById('splash').classList.add('hide');
-  setTimeout(() => {
-    document.getElementById('splash').style.display = 'none';
-    document.getElementById('app').classList.add('visible');
-  }, 600);
+  setTimeout(()=>{
+    document.getElementById('splash').style.display='none';
+    document.getElementById('shell').classList.add('on');
+  },600);
 }
 
-function renderMoodGrid() {
-  const grid = document.getElementById('moodGrid');
-  grid.innerHTML = MOODS.map(mood => `
-    <div class="mood-card" id="card-${mood.id}" onclick="selectMood('${mood.id}')">
-      <span class="mood-emoji">${mood.emoji}</span>
-      <span class="mood-name" style="color: var(--text-secondary)">${mood.label}</span>
-      <span class="mood-desc">${mood.desc}</span>
-    </div>
-  `).join('');
+function goTab(name){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.getElementById('tab-'+name).classList.add('active');
+  document.getElementById('page-'+name).classList.add('on');
+  if(name==='challenge' && !currentChallenge) loadChallenge();
 }
 
-function selectMood(moodId) {
-  if (isLoading) return;
-  const mood = MOODS.find(m => m.id === moodId);
-  if (!mood) return;
+// ═══════════════════════════════════════════
+// MOOD TAB
+// ═══════════════════════════════════════════
+function renderMoodGrid(){
+  document.getElementById('moodGrid').innerHTML=MOODS.map(m=>`
+    <div class="mc" id="mc-${m.id}" onclick="selectMood('${m.id}')">
+      <span class="mc-emoji">${m.emoji}</span>
+      <span class="mc-name" style="color:var(--text2)">${m.label}</span>
+      <span class="mc-desc">${m.desc}</span>
+    </div>`).join('');
+}
 
-  MOODS.forEach(m => {
-    const card = document.getElementById('card-' + m.id);
-    if (m.id === moodId) {
-      card.style.background = `linear-gradient(135deg, ${m.color}25, ${m.color}10)`;
-      card.style.borderColor = m.color + '80';
-      card.style.boxShadow = `0 0 20px ${m.color}20`;
-      card.querySelector('.mood-name').style.color = m.color;
-    } else {
-      card.style.background = 'var(--surface)';
-      card.style.borderColor = 'rgba(255,255,255,0.07)';
-      card.style.boxShadow = 'none';
-      card.querySelector('.mood-name').style.color = 'var(--text-secondary)';
-    }
+function selectMood(id){
+  if(moodLoading)return;
+  const mood=MOODS.find(m=>m.id===id); if(!mood)return;
+  MOODS.forEach(m=>{
+    const c=document.getElementById('mc-'+m.id);
+    if(m.id===id){c.style.background=`linear-gradient(135deg,${m.color}25,${m.color}10)`;c.style.borderColor=m.color+'80';c.style.boxShadow=`0 0 18px ${m.color}20`;c.querySelector('.mc-name').style.color=m.color;}
+    else{c.style.background='var(--surface)';c.style.borderColor='rgba(255,255,255,0.07)';c.style.boxShadow='none';c.querySelector('.mc-name').style.color='var(--text2)';}
   });
-
-  document.getElementById('aura').style.background = `
-    radial-gradient(ellipse at 15% 15%, ${mood.color}15 0%, transparent 55%),
-    radial-gradient(ellipse at 85% 85%, ${mood.color}08 0%, transparent 55%)
-  `;
-
-  selectedMood = mood;
-  fetchVerse(mood);
+  document.getElementById('aura').style.background=`radial-gradient(ellipse at 15% 15%,${mood.color}15 0%,transparent 55%),radial-gradient(ellipse at 85% 85%,${mood.color}08 0%,transparent 55%)`;
+  selectedMood=mood; fetchVerse(mood);
 }
 
-async function fetchVerse(mood) {
-  isLoading = true;
-  if (!verseCount[mood.id]) verseCount[mood.id] = 0;
+async function fetchVerse(mood){
+  moodLoading=true;
+  if(!verseCount[mood.id])verseCount[mood.id]=0;
   verseCount[mood.id]++;
-
-  const area = document.getElementById('verseArea');
-
-  if (area.querySelector('.verse-card')) {
-    area.querySelector('.verse-card').style.animation = 'fadeOut 0.3s ease forwards';
-    await sleep(300);
-  }
-
-  area.innerHTML = `
-    <div class="loading-state">
-      <div class="spinner" style="border-top-color: ${mood.color}"></div>
-      <p class="loading-text">Finding a word for your heart…</p>
-    </div>
-  `;
-
-  try {
-    // ✅ Calls our secure serverless function — API key stays private on the server
-    const response = await fetch('/api/verse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        moodId: mood.id,
-        moodDesc: mood.desc,
-        count: verseCount[mood.id]
-      })
-    });
-
-    if (!response.ok) throw new Error('Server error');
-    const parsed = await response.json();
-    renderVerse(parsed, mood);
-  } catch (err) {
-    area.innerHTML = `
-      <div class="loading-state">
-        <p style="font-family: var(--serif); font-style: italic; color: #BF5A5A; text-align: center; padding: 0 20px;">
-          Something went wrong. Please try again.
-        </p>
-      </div>
-    `;
-  } finally {
-    isLoading = false;
-  }
+  const area=document.getElementById('verseArea');
+  if(area.querySelector('.card')){area.querySelector('.card').style.animation='fadeout .3s ease forwards';await sleep(300);}
+  area.innerHTML=`<div class="loading"><div class="spinner" style="border-top-color:${mood.color}"></div><p class="loading-text">Finding a word for your heart…</p></div>`;
+  try{
+    const r=await fetch('/api/verse',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({moodId:mood.id,moodDesc:mood.desc,count:verseCount[mood.id]})});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    renderVerse(d,mood);
+  }catch{
+    area.innerHTML=`<div class="loading"><p style="font-family:var(--serif);font-style:italic;color:#BF5A5A;text-align:center">Something went wrong. Please try again.</p></div>`;
+  }finally{moodLoading=false;}
 }
 
-function renderVerse(data, mood) {
-  const count = verseCount[mood.id] || 1;
-  const area = document.getElementById('verseArea');
-  area.innerHTML = `
-    <div class="verse-card">
-      <div class="verse-card-accent" style="background: linear-gradient(90deg, transparent, ${mood.color}, transparent)"></div>
-      <div class="verse-card-body">
-        <span class="verse-reference" style="color: ${mood.color}">${data.reference}</span>
-        <blockquote class="verse-text" style="border-color: ${mood.color}60">"${data.verse}"</blockquote>
-        <div class="verse-divider" style="background: linear-gradient(90deg, ${mood.color}40, transparent)"></div>
-        <p class="verse-explanation">${data.explanation}</p>
-        <div class="verse-prayer" style="background: ${mood.color}10; border: 1px solid ${mood.color}20">
-          <span class="prayer-icon">🙏</span>
-          <p class="prayer-text">${data.prayer}</p>
+function renderVerse(d,mood){
+  const cnt=verseCount[mood.id]||1;
+  document.getElementById('verseArea').innerHTML=`
+    <div class="card">
+      <div class="card-accent" style="background:linear-gradient(90deg,transparent,${mood.color},transparent)"></div>
+      <div class="card-body">
+        <span class="v-ref" style="color:${mood.color}">${d.reference}</span>
+        <blockquote class="v-text" style="border-color:${mood.color}60">"${d.verse}"</blockquote>
+        <div class="divider" style="background:linear-gradient(90deg,${mood.color}40,transparent)"></div>
+        <p class="v-explain">${d.explanation}</p>
+        <div class="v-prayer" style="background:${mood.color}10;border:1px solid ${mood.color}20">
+          <span class="v-prayer-icon">🙏</span>
+          <p class="v-prayer-text">${d.prayer}</p>
         </div>
       </div>
-      <div class="verse-card-footer">
-        <button class="btn-refresh" style="color: ${mood.color}" onclick="selectMood('${mood.id}')">
-          ↻ &nbsp;New verse
-        </button>
-        <span class="verse-count">${count > 1 ? `Verse ${count} for this mood` : ''}</span>
+      <div class="card-footer">
+        <button class="btn-ghost" style="color:${mood.color}" onclick="selectMood('${mood.id}')">↻ &nbsp;New verse</button>
+        <span style="font-family:var(--sans);font-size:9px;color:var(--text3)">${cnt>1?`Verse ${cnt}`:''}
+        </span>
       </div>
-    </div>
-  `;
-  setTimeout(() => area.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 100);
+    </div>`;
+  setTimeout(()=>document.getElementById('verseArea').scrollIntoView({behavior:'smooth',block:'nearest'}),100);
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+// ═══════════════════════════════════════════
+// CHALLENGE TAB
+// ═══════════════════════════════════════════
+function loadChallenge(){
+  challengeAnswered=false;
+  const idx=Math.floor(Math.random()*CHALLENGE_VERSES.length);
+  currentChallenge=CHALLENGE_VERSES[idx];
+  const v=currentChallenge;
+  // shuffle options
+  const opts=[...v.options].sort(()=>Math.random()-.5);
+  document.getElementById('challengeArea').innerHTML=`
+    <div class="card" style="animation:fiu .5s ease">
+      <div class="card-body" style="padding-bottom:8px">
+        <p class="ch-ref">${v.ref}</p>
+        <p class="ch-verse-partial">"${v.partial} <span class="ch-blank">___________</span>"</p>
+        <div class="ch-options">
+          ${opts.map(o=>`<button class="ch-opt" onclick="answerChallenge('${o}')">${o}</button>`).join('')}
+        </div>
+        <div id="ch-feedback" style="display:none"></div>
+        <button class="btn-next" id="btn-next" style="display:none" onclick="loadChallenge()">Next Verse →</button>
+      </div>
+    </div>`;
+}
+
+function answerChallenge(answer){
+  if(challengeAnswered)return;
+  challengeAnswered=true;
+  total++;
+  const correct=answer===currentChallenge.answer;
+  if(correct){score++;streak++;}else{streak=0;}
+  // update UI
+  document.querySelectorAll('.ch-opt').forEach(btn=>{
+    btn.disabled=true;
+    if(btn.textContent===currentChallenge.answer)btn.classList.add('correct');
+    else if(btn.textContent===answer&&!correct)btn.classList.add('wrong');
+  });
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('totalNum').textContent=total;
+  document.getElementById('streakLabel').textContent=`🔥 Streak: ${streak}`;
+  const fb=document.getElementById('ch-feedback');
+  fb.style.display='block';
+  fb.className='ch-feedback';
+  fb.innerHTML=correct
+    ?`✦ Correct! <br><em style="color:var(--text3)">"${currentChallenge.full}"</em>`
+    :`The answer was <strong style="color:var(--gold)">${currentChallenge.answer}</strong><br><em style="color:var(--text3)">"${currentChallenge.full}"</em>`;
+  document.getElementById('btn-next').style.display='block';
+}
+
+// ═══════════════════════════════════════════
+// PRAYER TAB
+// ═══════════════════════════════════════════
+function setDuration(mins,btn){
+  prayerDuration=mins;
+  document.querySelectorAll('.pd-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+}
+
+function startPrayer(){
+  reflectionAnswers=[];
+  currentQuestion=0;
+  prayerPhase='timer';
+  document.getElementById('prayer-fs').classList.add('on');
+  // Request fullscreen on Android
+  if(document.documentElement.requestFullscreen) document.documentElement.requestFullscreen().catch(()=>{});
+  startPrayerTimer();
+}
+
+function startPrayerTimer(){
+  prayerPhase='timer';
+  let remaining=prayerDuration*60;
+  let elapsed=0;
+  let promptIdx=0;
+  renderPrayerTimer(remaining,prayerDuration*60,PRAYER_PROMPTS[0]);
+  prayerInterval=setInterval(()=>{
+    remaining--; elapsed++;
+    const newPromptIdx=Math.min(Math.floor(elapsed/(prayerDuration*12)),PRAYER_PROMPTS.length-1);
+    if(newPromptIdx!==promptIdx){promptIdx=newPromptIdx;renderPrayerTimer(remaining,prayerDuration*60,PRAYER_PROMPTS[promptIdx]);}
+    else updateTimerDisplay(remaining,prayerDuration*60);
+    if(remaining<=0){clearInterval(prayerInterval);startReflection();}
+  },1000);
+}
+
+function renderPrayerTimer(remaining,total,prompt){
+  const mins=Math.floor(remaining/60).toString().padStart(2,'0');
+  const secs=(remaining%60).toString().padStart(2,'0');
+  const pct=((total-remaining)/total*100).toFixed(1);
+  document.getElementById('pf-content').innerHTML=`
+    <p class="pf-phase">Prayer Time</p>
+    <div class="pf-timer" id="pf-timer">${mins}:${secs}</div>
+    <p class="pf-timer-label">Remaining</p>
+    <p class="pf-prompt" style="animation:fiu .6s ease">${prompt.replace(/\n/g,'<br>')}</p>
+    <div class="pf-progress"><div class="pf-progress-bar" id="pf-bar" style="width:${pct}%"></div></div>`;
+}
+
+function updateTimerDisplay(remaining,total){
+  const el=document.getElementById('pf-timer');
+  const bar=document.getElementById('pf-bar');
+  if(!el)return;
+  const mins=Math.floor(remaining/60).toString().padStart(2,'0');
+  const secs=(remaining%60).toString().padStart(2,'0');
+  el.textContent=`${mins}:${secs}`;
+  if(bar)bar.style.width=`${((total-remaining)/total*100).toFixed(1)}%`;
+}
+
+function startReflection(){
+  prayerPhase='reflection';
+  showQuestion(0);
+}
+
+function showQuestion(idx){
+  if(idx>=REFLECTION_QUESTIONS.length){fetchPrayerVerse();return;}
+  currentQuestion=idx;
+  document.getElementById('pf-content').innerHTML=`
+    <p class="pf-phase">Reflection ${idx+1} of ${REFLECTION_QUESTIONS.length}</p>
+    <p class="pf-question">${REFLECTION_QUESTIONS[idx]}</p>
+    <textarea class="pf-textarea" id="pf-answer" placeholder="Write freely…" rows="4"></textarea>
+    <button class="btn-pf" onclick="submitAnswer()">${idx<REFLECTION_QUESTIONS.length-1?'Continue →':'Receive My Verse ✦'}</button>`;
+}
+
+function submitAnswer(){
+  const val=(document.getElementById('pf-answer').value||'').trim();
+  reflectionAnswers.push(val);
+  showQuestion(currentQuestion+1);
+}
+
+async function fetchPrayerVerse(){
+  document.getElementById('pf-content').innerHTML=`
+    <div class="loading"><div class="spinner"></div><p class="loading-text">Preparing a word for you…</p></div>`;
+  try{
+    const r=await fetch('/api/prayer-verse',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({answers:reflectionAnswers,duration:prayerDuration})});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    renderPrayerVerse(d);
+  }catch{
+    renderPrayerVerse({
+      reference:"Philippians 4:7",
+      verse:"And the peace of God, which transcends all understanding, will guard your hearts and your minds in Christ Jesus.",
+      explanation:"You showed up. You prayed. That act of faithfulness is seen and honoured. His peace is already at work in you."
+    });
+  }
+}
+
+function renderPrayerVerse(d){
+  document.getElementById('pf-content').innerHTML=`
+    <p class="pf-phase">Your Word for Today</p>
+    <span class="pf-verse-ref">${d.reference}</span>
+    <blockquote class="pf-verse-text">"${d.verse}"</blockquote>
+    <p class="pf-verse-explain">${d.explanation}</p>
+    <button class="btn-pf" onclick="exitPrayer()" style="margin-top:28px">Close ✦</button>`;
+}
+
+function exitPrayer(){
+  clearInterval(prayerInterval);
+  document.getElementById('prayer-fs').classList.remove('on');
+  if(document.exitFullscreen) document.exitFullscreen().catch(()=>{});
+}
+
+// ═══════════════════════════════════════════
+// REMINDER
+// ═══════════════════════════════════════════
+function setReminder(){
+  const timeVal=document.getElementById('reminderTime').value;
+  if(!timeVal){showToast('Please choose a time first');return;}
+  if(!('Notification' in window)){showToast('Notifications not supported on this browser');return;}
+  Notification.requestPermission().then(perm=>{
+    if(perm!=='granted'){showToast('Please allow notifications to set reminders');return;}
+    const [h,m]=timeVal.split(':').map(Number);
+    const now=new Date();
+    const target=new Date();
+    target.setHours(h,m,0,0);
+    if(target<=now)target.setDate(target.getDate()+1);
+    const ms=target-now;
+    setTimeout(()=>{
+      new Notification('DailyMood 🙏',{body:'Your prayer time is ready. Be still and know.',icon:'/icon.png'});
+    },ms);
+    showToast(`Reminder set for ${timeVal} ✦`);
+  });
+}
+
+// ═══════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+// ═══════════════════════════════════════════
+// PWA
+// ═══════════════════════════════════════════
+let deferredPrompt=null;
+window.addEventListener('beforeinstallprompt',e=>{
+  e.preventDefault(); deferredPrompt=e;
+  setTimeout(()=>showToast('Add DailyMood to your home screen ✦'),10000);
+});
 
 // Service Worker
-const swCode = `
-const CACHE = 'dailymood-v1';
-self.addEventListener('install', e => {
-  e.waitUntil(caches.open(CACHE).then(c => c.addAll([self.location.pathname])));
-});
-self.addEventListener('fetch', e => {
-  if (e.request.url.includes('/api/')) return;
-  e.respondWith(caches.match(e.request).then(r => r || fetch(e.request)));
-});
-`;
-if ('serviceWorker' in navigator) {
-  const blob = new Blob([swCode], { type: 'application/javascript' });
-  navigator.serviceWorker.register(URL.createObjectURL(blob)).catch(() => {});
+if('serviceWorker' in navigator){
+  const sw=`const C='dm-v2';self.addEventListener('install',e=>e.waitUntil(caches.open(C).then(c=>c.addAll([self.location.pathname]))));self.addEventListener('fetch',e=>{if(e.request.url.includes('/api/'))return;e.respondWith(caches.match(e.request).then(r=>r||fetch(e.request)));});`;
+  navigator.serviceWorker.register(URL.createObjectURL(new Blob([sw],{type:'application/javascript'}))).catch(()=>{});
 }
 
-// Inline Manifest
-const manifest = {
-  name: "DailyMood", short_name: "DailyMood",
-  description: "Choose your mood. Receive a Bible verse. Find peace.",
-  start_url: "./", display: "standalone",
-  background_color: "#0D0C0A", theme_color: "#0D0C0A",
-  icons: [
-    { src: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230D0C0A'/><text x='96' y='130' font-size='100' text-anchor='middle' fill='%23C5A55A'>✦</text></svg>", sizes: "192x192", type: "image/svg+xml" }
-  ]
-};
-const mBlob = new Blob([JSON.stringify(manifest)], { type: 'application/json' });
-document.querySelector('link[rel="manifest"]').href = URL.createObjectURL(mBlob);
+// Manifest
+const mf={name:"DailyMood",short_name:"DailyMood",description:"Mood verses, Bible challenges, and focused prayer.",start_url:"./",display:"standalone",background_color:"#0D0C0A",theme_color:"#0D0C0A",icons:[{src:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect width='192' height='192' fill='%230D0C0A'/><text x='96' y='130' font-size='100' text-anchor='middle' fill='%23C5A55A'>✦</text></svg>",sizes:"192x192",type:"image/svg+xml"}]};
+document.getElementById('manifest-link').href=URL.createObjectURL(new Blob([JSON.stringify(mf)],{type:'application/json'}));
 
+// ═══════════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════════
+function sleep(ms){return new Promise(r=>setTimeout(r,ms));}
+
+// ═══════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════
 renderMoodGrid();
 </script>
 </body>
